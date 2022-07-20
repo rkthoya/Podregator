@@ -2,8 +2,8 @@ from django.db import models
 
 
 class Content(models.Model):
-    feed_name = models.CharField(max_length=200)
-    item_title = models.CharField(max_length=200)
+    podcast_name = models.CharField(max_length=200)
+    title = models.CharField(max_length=200)
     description = models.TextField()
     pub_date = models.DateTimeField()
     link = models.URLField()
