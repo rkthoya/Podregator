@@ -1,2 +1,2 @@
-# PodsAndBlogs
-A content aggregator for some of my favorite blogs and podcasts.
+# Podregator
+A content aggregator for some of my favorite podcasts.
