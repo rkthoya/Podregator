@@ -1,7 +1,12 @@
 from django.core.management.base import BaseCommand
+from django.conf import settings
 
 import feedparser
 from dateutil import parser
+from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.triggers.cron import CronTrigger
+from django_apscheduler.jobstores import DjangoJobStore
+from django_apscheduler.models import DjangoJobExecution
 
 from aggregator.models import Episode
 
@@ -74,15 +79,116 @@ def fetch_freakonomics_episodes():
     save_new_episodes(feed)
 
 
+def delete_old_job_executions(max_age=604800):
+    DjangoJobExecution.objects.delete_old_job_executions(max_age)
+
+
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        fetch_stackoverflow_episodes()
-        fetch_realpython_episodes()
-        fetch_thl_episodes()
-        fetch_tkp_episodes()
-        fetch_freakonomics_episodes()
-        fetch_pythonbytes_episodes()
-        fetch_codenewbie_episodes()
-        fetch_djangochat_episodes()
-        fetch_tnbi_episodes()
-        fetch_tiu_episodes()
+        scheduler = BlockingScheduler(timezone=settings.TIME_ZONE)
+        scheduler.add_jobstore(DjangoJobStore(), "default")
+
+        scheduler.add_job(
+            fetch_stackoverflow_episodes,
+            trigger="interval",
+            hours=48,
+            id="The Stack Overflow Podcast",
+            max_instances=1,
+            replace_existing=True,
+        )
+
+        scheduler.add_job(
+            fetch_thl_episodes,
+            trigger="interval",
+            hours=168,
+            id="The Happiness Lab",
+            max_instances=1,
+            replace_existing=True,
+        )
+
+        scheduler.add_job(
+            fetch_pythonbytes_episodes,
+            trigger="interval",
+            hours=120,
+            id="Python Bytes",
+            max_instances=1,
+            replace_existing=True,
+        )
+
+        scheduler.add_job(
+            fetch_tkp_episodes,
+            trigger="interval",
+            hours=336,
+            id="The Knowledge Project",
+            max_instances=1,
+            replace_existing=True,
+        )
+
+        scheduler.add_job(
+            fetch_codenewbie_episodes,
+            trigger="interval",
+            hours=168,
+            id="The CodeNewbie Podcast",
+            max_instances=1,
+            replace_existing=True,
+        )
+
+        scheduler.add_job(
+            fetch_freakonomics_episodes,
+            trigger="interval",
+            hours=168,
+            id="Freakonomics Radio",
+            max_instances=1,
+            replace_existing=True,
+        )
+
+        scheduler.add_job(
+            fetch_realpython_episodes,
+            trigger="interval",
+            hours=168,
+            id="The Real Python Podcast",
+            max_instances=1,
+            replace_existing=True,
+        )
+
+        scheduler.add_job(
+            fetch_tnbi_episodes,
+            trigger="interval",
+            hours=168,
+            id="The Next Big Idea Podcast",
+            max_instances=1,
+            replace_existing=True,
+        )
+
+        scheduler.add_job(
+            fetch_djangochat_episodes,
+            trigger="interval",
+            hours=168,
+            id="Django Chat",
+            max_instances=1,
+            replace_existing=True,
+        )
+
+        scheduler.add_job(
+            fetch_tiu_episodes,
+            trigger="interval",
+            hours=168,
+            id="This Is Uncomfortable",
+            max_instances=1,
+            replace_existing=True,
+        )
+
+        scheduler.add_job(
+            delete_old_job_executions,
+            trigger=CronTrigger(
+                day_of_week="mon", hour="00", minute="00"
+            ),
+            id="Delete Old Job Executions",
+            max_instances=1,
+            replace_existing=True,
+        )
+
+        try:
+            scheduler.start()
+        except KeyboardInterrupt:
+            scheduler.shutdown()
