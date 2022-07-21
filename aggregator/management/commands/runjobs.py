@@ -15,7 +15,7 @@ def save_new_episodes(rss_feed):
     podcast_title = rss_feed.feed.title
     podcast_image = rss_feed.feed.image["href"]
 
-    for entry in rss_feed.entries:
+    for entry in rss_feed.entries[:36]:
         if not Episode.objects.filter(guid=entry.guid).exists():
             episode = Episode(
                 title=entry.title,
@@ -46,11 +46,6 @@ def fetch_codenewbie_episodes():
 
 def fetch_djangochat_episodes():
     feed = feedparser.parse("https://feeds.simplecast.com/WpQaX_cs")
-    save_new_episodes(feed)
-
-
-def fetch_tnbi_episodes():
-    feed = feedparser.parse("https://feeds.megaphone.fm/LI1683199352")
     save_new_episodes(feed)
 
 
@@ -91,7 +86,7 @@ class Command(BaseCommand):
         scheduler.add_job(
             fetch_stackoverflow_episodes,
             trigger="interval",
-            hours=48,
+            hours=120,
             id="The Stack Overflow Podcast",
             max_instances=1,
             replace_existing=True,
@@ -147,15 +142,6 @@ class Command(BaseCommand):
             trigger="interval",
             hours=168,
             id="The Real Python Podcast",
-            max_instances=1,
-            replace_existing=True,
-        )
-
-        scheduler.add_job(
-            fetch_tnbi_episodes,
-            trigger="interval",
-            hours=168,
-            id="The Next Big Idea Podcast",
             max_instances=1,
             replace_existing=True,
         )
