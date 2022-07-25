@@ -1,3 +1,5 @@
+import logging
+
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
@@ -9,6 +11,9 @@ from django_apscheduler.jobstores import DjangoJobStore
 from django_apscheduler.models import DjangoJobExecution
 
 from aggregator.models import Episode
+
+
+logger = logging.getLogger(__name__)
 
 
 def save_new_episodes(rss_feed):
@@ -79,6 +84,8 @@ def delete_old_job_executions(max_age=604800):
 
 
 class Command(BaseCommand):
+    help = "Runs APScheduler."
+
     def handle(self, *args, **options):
         scheduler = BlockingScheduler(timezone=settings.TIME_ZONE)
         scheduler.add_jobstore(DjangoJobStore(), "default")
@@ -91,6 +98,7 @@ class Command(BaseCommand):
             max_instances=1,
             replace_existing=True,
         )
+        logger.info("Added job: The Stack Overflow Podcast")
 
         scheduler.add_job(
             fetch_thl_episodes,
@@ -101,6 +109,7 @@ class Command(BaseCommand):
             replace_existing=True,
         )
 
+
         scheduler.add_job(
             fetch_pythonbytes_episodes,
             trigger="interval",
@@ -109,6 +118,7 @@ class Command(BaseCommand):
             max_instances=1,
             replace_existing=True,
         )
+        logger.info("Added job: Python Bytes Feed.")
 
         scheduler.add_job(
             fetch_tkp_episodes,
@@ -118,6 +128,7 @@ class Command(BaseCommand):
             max_instances=1,
             replace_existing=True,
         )
+        logger.info("Added job: The Knowledge Project Podcast.")
 
         scheduler.add_job(
             fetch_codenewbie_episodes,
@@ -127,6 +138,7 @@ class Command(BaseCommand):
             max_instances=1,
             replace_existing=True,
         )
+        logger.info("Added job: The CodeNewbie Podcast.")
 
         scheduler.add_job(
             fetch_freakonomics_episodes,
@@ -136,6 +148,7 @@ class Command(BaseCommand):
             max_instances=1,
             replace_existing=True,
         )
+        logger.info("Added job: Freakonomics Radio.")
 
         scheduler.add_job(
             fetch_realpython_episodes,
@@ -145,6 +158,7 @@ class Command(BaseCommand):
             max_instances=1,
             replace_existing=True,
         )
+        logger.info("Added job: The Real Python Podcast.")
 
         scheduler.add_job(
             fetch_djangochat_episodes,
@@ -154,6 +168,7 @@ class Command(BaseCommand):
             max_instances=1,
             replace_existing=True,
         )
+        logger.info("Added job: Django Chat.")
 
         scheduler.add_job(
             fetch_tiu_episodes,
@@ -163,6 +178,7 @@ class Command(BaseCommand):
             max_instances=1,
             replace_existing=True,
         )
+        logger.info("Added job: This is Uncomfortable.")
 
         scheduler.add_job(
             delete_old_job_executions,
@@ -173,8 +189,12 @@ class Command(BaseCommand):
             max_instances=1,
             replace_existing=True,
         )
+        logger.info("Added Weekly Job: Delete Old Job Executions from the Database.")
 
         try:
+            logger.info("Starting scheduler...")
             scheduler.start()
         except KeyboardInterrupt:
+            logger.info("Stopping scheduler...")
             scheduler.shutdown()
+            logger.info("Scheduler shut down successfully!")
