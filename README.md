@@ -1,6 +1,8 @@
 # Podregator
 A content aggregator for some of my favorite podcasts.
 
+![alt text](https://github.com/rkthoya/Podregator/blob/88668d4df5fe8692212daa9b56c2f314da9700f5/static/imgs/Podregator.png "Homepage Screenshot")
+
 ## Features
 * RSS Feed Parsing using the [feedparser library](https://feedparser.readthedocs.io/en/latest/).
 * Custom [django-admin](https://docs.djangoproject.com/en/4.0/howto/custom-management-commands/) command.
