@@ -25,7 +25,7 @@ Run the migrations to create a simple SQLite database:
 
 `python manage.py migrate`
 
-To see a demo of parsed episodes on the homepage you might need to alter the time interval between task execution. You can do this in the aggregator/management/commands/runjobs.py. In the `handle()` method of the `Command` class, change the "hours" argument in any of the `scheduler.add_job()` functions to minutes. For example:
+To see a demo of parsed episodes on the homepage you might need to alter the time interval between a task's execution. You can do this in the aggregator/management/commands/runjobs.py. In the `handle()` method of the `Command` class, change the "hours" argument in any of the `scheduler.add_job()` functions to minutes. For example:
 
 ```python
 scheduler.add_job(
